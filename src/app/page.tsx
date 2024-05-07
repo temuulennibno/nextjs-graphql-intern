@@ -1,95 +1,65 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+
+import { gql, useLazyQuery, useQuery } from "@apollo/client";
+
+const GET_TODO_LIST = gql`
+  query GetTodoList {
+    getTodoList {
+      id
+      name
+      checked
+    }
+  }
+`;
+
+/**
+ * RESEARCH
+ * 1. Passing variables to useQuery or useLazyQuery
+ * 2. Add todo Mutation
+ * 3. Todo check toggle mutation
+ * 4. Todo delete mutation
+ */
+
+//
 
 export default function Home() {
+  // const { data, error, loading } = useQuery(GET_TODO_LIST);
+  const [getData, { data, error, loading }] = useLazyQuery(GET_TODO_LIST);
+
+  const onSubmit = (e: any) => {
+    e.preventDefault();
+  };
+
+  if (loading) {
+    return <div className="min-h-screen flex justify-center items-center">Loading....</div>;
+  }
+
+  if (error) {
+    return <div className="min-h-screen flex justify-center items-center">Error!</div>;
+  }
+  if (data)
+    return (
+      <div className="min-h-screen flex justify-center items-center flex-col gap-4">
+        <form className="flex" onSubmit={onSubmit}>
+          <input type="text" placeholder="Todo title..." className="input input-bordered w-full max-w-xs" />
+          <button className="btn">Add</button>
+        </form>
+        <ul className="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
+          {data.getTodoList.map((todo: any) => (
+            <li key={todo.id} className="flex gap-4 items-center">
+              <input type="checkbox" className="toggle" checked={todo.checked} />
+              {todo.name}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    <div className="min-h-screen flex justify-center items-center">
+      <button className="btn btn-outline" onClick={() => getData()}>
+        Fetch data
+      </button>
+    </div>
   );
 }
